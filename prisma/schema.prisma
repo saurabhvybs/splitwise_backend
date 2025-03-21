@@ -12,6 +12,12 @@ model User {
   id                 String         @id @default(uuid())
   name               String
   email              String         @unique
+  
+  // Optional OAuth-related fields
+  providerId         String?        // ID from the OAuth provider
+  provider           String?        // "google", "github", etc.
+  avatar             String?        // Profile picture URL
+
   transactions       Transaction[]  @relation("PayerTransaction")
   participatedIn     TransactionParticipant[]
   initiatedFriendships Friendship[] @relation("UserFriendship")
