@@ -1,5 +1,5 @@
 // src/utils/dbCheck.ts
-import prisma from '../../lib/prisma';
+import prisma from '../lib/prisma';
 
 export async function checkDbConnection() {
   try {

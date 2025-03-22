@@ -9,21 +9,20 @@ datasource db {
 }
 
 model User {
-  id                 String         @id @default(uuid())
-  name               String
-  email              String         @unique
-  
-  // Optional OAuth-related fields
-  providerId         String?        // ID from the OAuth provider
-  provider           String?        // "google", "github", etc.
-  avatar             String?        // Profile picture URL
+  id                 String         @id @default(uuid()) // Matches Supabase auth.users.id
+  name               String?
+  email              String?        @unique // Keep unique if you want email uniqueness
+  avatar             String?
 
-  transactions       Transaction[]  @relation("PayerTransaction")
+  // Relations
+  transactions       Transaction[]
   participatedIn     TransactionParticipant[]
-  initiatedFriendships Friendship[] @relation("UserFriendship")
-  receivedFriendships  Friendship[] @relation("FriendFriendship")
+  initiatedFriendships Friendship[]
+  receivedFriendships  Friendship[]
   createdAt          DateTime       @default(now())
   updatedAt          DateTime       @updatedAt
+
+  @@index([email])
 }
 
 model Transaction {
