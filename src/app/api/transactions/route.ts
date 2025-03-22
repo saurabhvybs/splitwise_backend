@@ -1,6 +1,6 @@
 // src/app/api/transactions/route.ts
 import { NextResponse } from 'next/server';
-import prisma from '../../../../lib/prisma';
+import prisma from '@/lib/prisma';
 import { checkDbConnection } from '@/utils/dbCheck';
 
 export async function GET(request: Request) {
