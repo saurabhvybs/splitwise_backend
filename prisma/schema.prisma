@@ -6,6 +6,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
@@ -15,10 +16,13 @@ model User {
   avatar             String?
 
   // Relations
-  transactions       Transaction[]
+  transactions       Transaction[]  @relation("PayerTransaction")
   participatedIn     TransactionParticipant[]
-  initiatedFriendships Friendship[]
-  receivedFriendships  Friendship[]
+  
+  // Disambiguate Friendship relations with explicit relation names
+  initiatedFriendships Friendship[] @relation("UserInitiatedFriendships")
+  receivedFriendships  Friendship[] @relation("UserReceivedFriendships")
+  
   createdAt          DateTime       @default(now())
   updatedAt          DateTime       @updatedAt
 
@@ -54,10 +58,14 @@ model TransactionParticipant {
 
 model Friendship {
   id        String   @id @default(uuid())
+  
+  // Update relations with corresponding names
   userId    String
-  user      User     @relation("UserFriendship", fields: [userId], references: [id])
+  user      User     @relation("UserInitiatedFriendships", fields: [userId], references: [id])
+  
   friendId  String
-  friend    User     @relation("FriendFriendship", fields: [friendId], references: [id])
+  friend    User     @relation("UserReceivedFriendships", fields: [friendId], references: [id])
+  
   status    String   @default("PENDING") // PENDING, ACCEPTED, REJECTED
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
