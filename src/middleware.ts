@@ -1,21 +1,25 @@
-// middleware.ts
-import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs';
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
-import type { Database } from '@/lib/database.types';
+import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
 
 export async function middleware(req: NextRequest) {
-  const res = NextResponse.next();
-  const supabase = createMiddlewareClient<Database>({ req, res });
-  
-  // Refresh session if expired
-  await supabase.auth.getSession();
-  
-  return res;
+  const token = req.headers.get("authorization")?.split("Bearer ")[1];
+
+  if (!token) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABSE_URL!,
+    process.env.NEXT_PUBLIC_SUPABSE_ANON_KEY!,
+    { global: { headers: { Authorization: `Bearer ${token}` } } }
+  );
+  const { data: user, error } = await supabase.auth.getUser();
+
+  if (error || !user) {
+    return NextResponse.json({ error: "Invalid Token" }, { status: 401 });
+  }
+  return NextResponse.next();
 }
 
 export const config = {
-  matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|api/auth/callback).*)',
-  ],
+  matcher: "/api/protected/:path*",
 };
